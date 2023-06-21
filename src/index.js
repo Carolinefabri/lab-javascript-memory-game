@@ -26,7 +26,6 @@ const cards = [
 ];
 
 const memoryGame = new MemoryGame(cards);
-
 window.addEventListener('load', (event) => {
   let html = '';
   memoryGame.cards.forEach((pic) => {
@@ -37,51 +36,51 @@ window.addEventListener('load', (event) => {
       </div>
     `;
   });
+    
 
   // Add all the divs to the HTML
   document.querySelector('#memory-board').innerHTML = html;
 
+  // Check if pair
+  function checkPair() {
+    if (memoryGame.pickedCards.length === 2) {
+      memoryGame.pairsClicked--
+      const isPair = memoryGame.checkIfPair(
+        memoryGame.pickedCards[0].getAttribute("data-card-name"),
+        memoryGame.pickedCards[1].getAttribute("data-card-name")
+      )
+      if (isPair) {
+        memoryGame.pickedCards.shift()
+        memoryGame.pickedCards.shift()
+        memoryGame.pairsGuessed++
+        document.querySelector("#pairs-guessed").innerHTML =
+          memoryGame.pairsGuessed / 2
+      } else {
+        memoryGame.pickedCards.forEach((card) => {
+          card.setAttribute("class", "card")
+          memoryGame.pickedCards = []
+        })
+      }
+    }
+  }
+  const youWin = () => { if (memoryGame.pairsGuessed / 2 === 12) console.log("You won!") }
+
   // Bind the click event of each element to a function
   document.querySelectorAll('.card').forEach((card) => {
     card.addEventListener('click', () => {
-   
-      card.classList.toggle('turned');
-    card.classList.toggle('blocked');
-    console.log('Card clicked: ', card);
-  
-      
       // TODO: write some code here
       console.log(`Card clicked: ${card}`);
-      if (!card.classList.contains('blocked')) {
-        card.classList.toggle('turned');
 
+      if (memoryGame.pickedCards.length < 2) {
+        memoryGame.pickedCards.push(card)
+        card.setAttribute("class", "card turned")
 
-        const pickedCards = document.querySelectorAll('.turned');
-
-        if (pickedCards.length === 2) {
-          const [card1, card2] = pickedCards;
-
-          const isPair = checkIfPair(card1.dataset.cardName, card2.dataset.cardName);
-          if (isPair) {
-            card1.classList.add('blocked');
-            card2.classList.add('blocked');
-            document.getElementById('pairs_guessed').textContent = Number(document.getElementById('pairs_guessed').textContent) + 1;
-          } else {
-            setTimeout(() => {
-              card1.classList.toggle('turned');
-              card2.classList.toggle('turned');
-            }, 1000);
-          }
-
-          document.getElementById('pairs_clicked').textContent = Number(document.getElementById('pairs_clicked').textContent) + 1;
-          pickedCards.forEach(card => card.classList.remove('turned'));
-
-          if (checkIfFinished()) {
-            alert('You won!!!');
-          }
-        }
+        memoryGame.pairsClicked++
+        document.querySelector("#pairs-clicked").innerHTML = memoryGame.pairsClicked
       }
-
+    
+      setTimeout(checkPair, 1300)
+      setTimeout(youWin, 1500)
     });
   });
 });
